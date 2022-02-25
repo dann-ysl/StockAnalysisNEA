@@ -1,54 +1,51 @@
-import os
-import csv
-import datetime as dt
+from tkinter import *
 
+ticker = ["AAPL","MSFT","TSLA"]
 
-filename = "recordCache/test.csv"
+class mainWindow(Frame):
+    def __init__(self, master, *args, **kwargs):
+        Frame.__init__(self, master, *args, **kwargs)
+        e = topFrame(self)
+        e.grid(row = 0)
+        f = middleFrame(self, 5)
+        f.grid(row = 1)
+        print (f.value)
 
+class topFrame(Frame):
+    def __init__(self, master, *args, **kwargs):
+        Frame.__init__(self, master, *args, **kwargs)
+        self.label = Label(self, text="hello")
+        self.label.pack()
 
+class middleFrame(Frame):
+    def __init__(self, master, value, *args, **kwargs):
+        Frame.__init__(self, master, *args, **kwargs)
+        self.value = value
+        self.label = Label(self, text="yo")
+        self.label.pack()
+        self.addRow()
 
-def check():
-    if os.path.exists(filename):
-        lastDate = []
-    with open(filename, "r", newline = "") as readfile:
-        reader = csv.reader(readfile)
-        for row in reader:
-            lastDate.append(row)
-    
-    print (lastDate)
+    def addRow(self):
+        global ticker
+        for entry in ticker:
+            buttonWindow(self, entry).pack()
 
-    if lastDate[0] != dt.date.today():
-        #os.remove(filename)
-        with open(filename, "w", newline = "") as writefile:
-            writer = csv.writer(writefile)
-            writer.writerow([dt.date.today()])
+class buttonWindow(Button):
+    def __init__(self, master, name, *args, **kwargs):
+        Button.__init__(self, master, *args, **kwargs)
+        self.config(text = name, command=lambda: newWindow(self, name))
+        #pack in parent
 
-    else:#will never be executed once the file has been created
-        with open(filename, "w", newline = "") as writefile:
-            writer = csv.writer(writefile)
-            writer.writerow([dt.date.today()])
+class newWindow(Toplevel):
+    def __init__(self, master, name):
+        Toplevel.__init__(self, master)
+        self.title(name)
+        self.label = Label(self, text=name)
+        self.label.pack()
+        self.quitBtn = Button(self, text="quit", command=self.destroy)
+        self.quitBtn.pack()
 
-header = ["stock","location","close"]
-
-data = [["TSLA","TSLA.png","420.50"],
-        ["AAPL","AAPL.png","354.34"],
-        ["MSFT","MSFT.png","1200.01"]
-        ]
-
-#with open(filename,"w", newline = "") as writefile:
-    #writer = csv.writer(writefile)
-    #writer.writerow(header)
-    #writer.writerows(data)
-
-fields = []
-rows = []
-
-with open(filename, "r") as readfile:
-    reader = csv.reader(readfile)
-    fields = next(reader)
-
-    for row in reader:
-        rows.append(row)
-
-print (fields)
-print (rows)
+root = Tk()
+home = mainWindow(root)
+home.pack()
+root.mainloop()

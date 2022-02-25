@@ -11,76 +11,98 @@ class mainWindow(Frame):
 
     def __init__(self, master, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
-        #self.master = master
+        self.master = master
         self.master.title("Stock Analysis Assistant")
 
-        self.top = topFrame(self)
-        self.mid = middleFrame(self)
-        self.bot = bottomFrame(self)
+        #self.topFrame.grid_columnconfigure(0,weight=1)
+        #self.topFrame.grid_columnconfigure(1,weight=1)
+        #self.topFrame.grid_columnconfigure(2,weight=1)
 
-        self.top.pack(fill=X , padx=3, pady = 3)
-        self.mid.pack(fill=X , padx=3, pady = 3)
-        self.bot.pack(fill=X)
+        #self.middleFrame.grid_columnconfigure(0, weight=1)
+        #self.middleFrame.grid_columnconfigure(1, weight=1)
+        #self.middleFrame.grid_columnconfigure(2, weight=1)
 
-class topFrame(Frame):
-    def __init__(self, master, *args, **kwargs):
-        Frame.__init__(self, master, *args, **kwargs)
+        #self.bottomFrame.grid_columnconfigure(0, weight=1)
 
-        self.label = Label(self, text="Screener")
-        self.entryBox = Entry(self)
-      
-        self.label.grid(row=0, column = 0)
-        self.entryBox.grid(row=0, column = 1)
+        ##########frame create and pack
+        self.topFrame = Frame(self, width = 500)
+        self.middleFrame = Frame(self, width = 500)
+        self.bottomFrame = Frame(self, width = 500)
 
-class middleFrame(Frame):
-    def __init__(self, master, *args, **kwargs):
-        Frame.__init__(self, master, *args, **kwargs)
+        self.topFrame.pack(fill=X , padx=3, pady = 3)
+        self.middleFrame.pack(fill=X , padx=3, pady = 3)
+        self.bottomFrame.pack(fill=X)
+        ##########
 
-        self.displayBtn = Button(self, text="Display", command=self.displayScreener)
-        self.clearBtn = Button(self, text="Clear", command=self.clearScreener)
-        self.header_ticker = Label(self, text="Ticker")
-        self.header_preview = Label(self, text = "Last 90 Days")
-        self.header_close = Label(self, text = "Close Price")
+        ##########topFrame widgets
+        self.label_1 = Label(self.topFrame, text="Screener")
+        self.entryBox = Entry(self.topFrame)
+        self.displayBtn = Button(self.topFrame, text="Display", command=self.displayScreener)
+        self.clearBtn = Button(self.topFrame, text="Clear", command=self.clearScreener)
 
-        self.displayBtn.grid(row=0,column = 0)
-        self.clearBtn.grid(row=0, column = 1)
-        self.header_ticker.grid(row=1,column=0)
-        self.header_preview.grid(row=1,column=1)
-        self.header_close.grid(row=1, column=2)
+        self.label_1.grid(row=0, columnspan = 3)
+        self.entryBox.grid(row=1, column = 0)
+        self.displayBtn.grid(row=1,column = 1)
+        self.clearBtn.grid(row=1, column = 2)
+        ##########
 
+        ##########middleFrame widgets
+        self.header_ticker = Label(self.middleFrame, text="Ticker")
+        self.header_preview = Label(self.middleFrame, text = "Last 90 Days")
+        self.header_close = Label(self.middleFrame, text = "Close Price")
+
+        self.header_ticker.grid(row=0,column=0)
+        self.header_preview.grid(row=0,column=1)
+        self.header_close.grid(row=0, column=2)
+        ##########
+
+        ##########bottomframe widgets
+        self.exitBtn = Button(self.bottomFrame, text = 'Exit', command = master.destroy)
+        self.exitBtn.pack(side="right")
+        ##########
+    
     def displayScreener(self):
         global displayArr
         arr = displayArr
-        currentRow = 2
+        currentRow = 1
         for i in range(len(arr)):
-            buttonWindow(self, arr[i][0]).grid(row = currentRow, column = 0)
-            Label(self, image = arr[i][1]).grid(row = currentRow, column = 1)
-            Label(self, text = arr[i][2]).grid(row = currentRow, column = 2)
+            ticker = arr[i][0]
+            rowButton(self.middleFrame, ticker).grid(row = currentRow, column = 0)
+            self.image = Label(self.middleFrame, image = arr[i][1])
+            self.close = Label(self.middleFrame, text = arr[i][2])
 
+            self.image.grid(row = currentRow, column = 1)
+            self.close.grid(row = currentRow, column = 2)
+            
             currentRow += 1
     
     def clearScreener(self):
-        for item in self.grid_slaves():
+        for item in self.middleFrame.grid_slaves():
             current = int(item.grid_info()["row"])
-            if current > 1:
+            if current > 0:
                 item.grid_forget()
 
-class bottomFrame(Frame):
-    def __init__(self, master, *args, **kwargs):
-        Frame.__init__(self, master, *args, **kwargs)
-        self.exitBtn = Button(self, text = 'Exit', command = root.destroy)
-        self.exitBtn.pack(side="right")
 
-class buttonWindow(Button):
-    def __init__(self, master, name, *args, **kwargs):
-        Button.__init__(self, master, *args, **kwargs)
-        self.config(text = name, command=lambda: subWindow(self, name))
 
+
+
+
+
+class rowButton(Button):
+
+    def __init__(self, ticker):
+        Button.__init__()
+        self.config(command=lambda: subWindow(ticker))
+
+        
+
+
+    
 class subWindow(Toplevel):
 
-    def __init__(self, master, ticker):
-        Toplevel.__init__(self, master)
-        #self.ticker = ticker
+    def __init__(self, ticker):
+        Toplevel.__init__(self)
+        self.ticker = ticker
         self.title("{}".format(ticker))
         
         today = dt.date.today()
@@ -95,10 +117,6 @@ class subWindow(Toplevel):
         self.canvas = FigureCanvasTkAgg(fig, self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
-
-        self.quitBtn = Button(self, text="Quit", command=self.destroy)
-        self.quitBtn.pack()
-
 
 def setCurrentDate(location):
     with open(location, "w", newline = "") as writefile:

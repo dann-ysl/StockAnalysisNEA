@@ -88,15 +88,17 @@ def initialise(arr):
     currentRecord = "recordCache/currentRecord.csv"
 
     if os.path.exists(currentDate):
-        lastDate = []
         with open(currentDate, "r") as readfile:
             reader = csv.reader(readfile)
             for row in reader:
-                lastDate.append(row)
-
+                lastDate = row
+        print("yhyh")
+        print (lastDate[0])
+        print (dt.date.today())
         if lastDate[0] != dt.date.today():
             setCurrentDate(currentDate)
             setCurrentRecord(arr, currentRecord)
+            print("currently resetting")
         
     else:#will never be executed once the file has been created
         setCurrentDate(currentDate)
