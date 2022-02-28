@@ -241,6 +241,15 @@ def numericalCheck(entryLB, entryUB, lb, ub, name):
         
     return ([float(entryLB), float(entryUB)])
 
+def reverseArray(arr):
+    length = len(arr)
+    output = [0 for x in range(length)]
+    
+    for i in range(length):
+        output[i] = arr[length - 1 - i]
+        
+    return output
+
 class mainWindow(Frame):
     def __init__(self, master, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
@@ -404,7 +413,7 @@ class screenerHeader(Frame):
             self.counter = 0
             output = self.sortArr
         elif index == 1:
-            output = self.sortArr[::-1]
+            output = reverseArray(self.sortArr)
         elif index == 2:
             output = self.displayArr
         
