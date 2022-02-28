@@ -1,51 +1,58 @@
-from tkinter import *
+from sortSearch import *
+stock = [["AAPL", 25, 0.86],
+        ["TSLA", 51, 2.6], 
+        ["MSFT", 13.2, 1.2]]
 
-ticker = ["AAPL","MSFT","TSLA"]
+stockLBUB = [[23,100],[2,4]]
 
-class mainWindow(Frame):
-    def __init__(self, master, *args, **kwargs):
-        Frame.__init__(self, master, *args, **kwargs)
-        e = topFrame(self)
-        e.grid(row = 0)
-        f = middleFrame(self, 5)
-        f.grid(row = 1)
-        print (f.value)
+closeLB = 23
+closeUB = 100
+voltLB = 2
+voltUB = 4
 
-class topFrame(Frame):
-    def __init__(self, master, *args, **kwargs):
-        Frame.__init__(self, master, *args, **kwargs)
-        self.label = Label(self, text="hello")
-        self.label.pack()
+#sortA = sortedArray(stock, 1)
+#sortB = sortedArray(stock, 2)
 
-class middleFrame(Frame):
-    def __init__(self, master, value, *args, **kwargs):
-        Frame.__init__(self, master, *args, **kwargs)
-        self.value = value
-        self.label = Label(self, text="yo")
-        self.label.pack()
-        self.addRow()
+def search(arr, filterArr):
 
-    def addRow(self):
-        global ticker
-        for entry in ticker:
-            buttonWindow(self, entry).pack()
+    for i in range(len(filterArr)):
+        length = len(arr)
+        sortArr = sortedArray(arr, (i+1))
+        
+        valueArr = [0 for x in range(length)]
+        for j in range(length):
+            valueArr[j] = sortArr[j][i+1]
 
-class buttonWindow(Button):
-    def __init__(self, master, name, *args, **kwargs):
-        Button.__init__(self, master, *args, **kwargs)
-        self.config(text = name, command=lambda: newWindow(self, name))
-        #pack in parent
+        indexArr = linearSearchRange(valueArr, filterArr[i][0], filterArr[i][1])
+        arr = sortArr[indexArr[0]:(indexArr[1]+1)]
+    
+    return arr
 
-class newWindow(Toplevel):
-    def __init__(self, master, name):
-        Toplevel.__init__(self, master)
-        self.title(name)
-        self.label = Label(self, text=name)
-        self.label.pack()
-        self.quitBtn = Button(self, text="quit", command=self.destroy)
-        self.quitBtn.pack()
+def linearSearchRange(arr, lb, ub):
 
-root = Tk()
-home = mainWindow(root)
-home.pack()
-root.mainloop()
+    output = [0,0]
+    length = len(arr)
+    leftCounter = 0
+    leftCheck = False
+    rightCounter = length - 1
+    rightCheck = False
+
+    while leftCheck == False:
+        if lb <= arr[leftCounter]:
+            output[0] =  leftCounter
+            leftCheck = True
+        else:
+            leftCounter += 1
+
+    while rightCheck == False:
+        if ub >= arr[rightCounter]:
+            output[1] = rightCounter
+            rightCheck = True
+        else:
+            rightCounter += -1
+    
+    return output
+
+
+print(search(stock, stockLBUB))
+

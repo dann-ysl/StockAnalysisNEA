@@ -1,6 +1,5 @@
 ###GUI
 from tkinter import *
-from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from indicators import * ###my functions
@@ -48,7 +47,7 @@ def setCurrentRecord(arr, location):
         ###
 
         ###volatility calculation (last 365 days)
-        vol365 = (volatility(dfClose, (len(dfClose)-1), False)[0])*100
+        vol365 = volatility(dfClose, (len(dfClose)-1), False)[0]
         ###
 
         ###adding data to row/file
@@ -167,71 +166,6 @@ def sortedArray(arr, column):
     
     return output
 
-def search(arr, filterValue):
-
-    for i in range(len(filterValue)):
-        length = len(arr)
-        sortArr = sortedArray(arr, (i+2))
-        
-        valueArr = [0 for x in range(length)]
-        for j in range(length):
-            valueArr[j] = sortArr[j][i+2]
-
-        indexArr = linearSearchRange(valueArr, filterValue[i][0], filterValue[i][1])
-        arr = sortArr[indexArr[0]:(indexArr[1]+1)]
-    
-    return arr
-
-def linearSearchRange(arr, lb, ub):
-
-    output = [0,0]
-    length = len(arr)
-    leftCounter = 0
-    leftCheck = False
-    rightCounter = (length - 1)
-    rightCheck = False
-    
-    while leftCheck == False:
-        if leftCounter < length:
-            if float(lb) <= float(arr[leftCounter]):
-                output[0] = leftCounter
-                leftCheck = True
-            else:
-                leftCounter += 1
-        else:
-            output[0] = leftCounter
-            leftCheck = True
- 
-    while rightCheck == False:
-        if rightCounter >= 0:
-            if float(ub) >= float(arr[rightCounter]):
-                output[1] = rightCounter
-                rightCheck = True
-            else:
-                rightCounter += -1
-        else:
-            output[1] = -1
-            rightCheck = True
-
-    return output
-
-def numericalCheck(entryLB, entryUB, lb, ub, name):
- 
-    if (entryLB.lstrip("-").isdigit() == False) and (entryLB == ""):
-        entryLB = str(lb)
-
-    if (entryUB.lstrip("-").isdigit() == False) and (entryUB == ""):
-        entryUB = str(ub)
-
-    if (entryLB.lstrip("-").isdigit() == True) and (entryUB.lstrip("-").isdigit() == True):
-        if float(entryLB) > float(entryUB):
-            messagebox.showerror("Error","Lower bound for {} is higher than the upper bound".format(name))
-            return "n"
-    else:
-        messagebox.showerror("Error","{} has an entry with a non-numerical value".format(name))
-        return "n"
-        
-    return ([float(entryLB), float(entryUB)])
 
 class mainWindow(Frame):
     def __init__(self, master, *args, **kwargs):
@@ -247,7 +181,7 @@ class mainWindow(Frame):
         self.mid.pack(fill=X , padx=3, pady = 3)
         self.bot.pack(fill=X)
 
-        self.top.displayBtn.config(command=lambda: self.mid.displayScreener(self.top.getFilter()))
+        #self.top.displayBtn.config(command=lambda: self.mid.displayScreener(self.displayArr))
         self.top.clearBtn.config(command=self.mid.clearScreener)
     
     def passArr(self, arr):
@@ -255,6 +189,7 @@ class mainWindow(Frame):
         self.mid.displayArr = arr
         self.mid.displayScreener(arr)
         
+
 class topFrame(Frame):
     def __init__(self, master, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
@@ -263,48 +198,28 @@ class topFrame(Frame):
         self.filtered = False
 
         self.label = Label(self, text="Screener")
-        self.entry = Entry(self)
+        self.closeEntry = Entry(self)
         self.displayBtn = Button(self, text="Display")
         self.clearBtn = Button(self, text="Clear")
         #self.filter = Button(self, text="Filter")
       
         self.label.grid(row=0, column = 0, columnspan=3)
-        self.entry.grid(row=1, column = 0)
+        self.closeEntry.grid(row=1, column = 0)
         self.displayBtn.grid(row=1,column = 1)
         self.clearBtn.grid(row=1, column = 2)
         #self.filter.grid(row=2)
-
-        self.closeEntry = filterEntry(self, "Close Price")
-        self.closeEntry.grid(row=2, column=0)
-
-        self.volatilityEntry = filterEntry(self, "Volatility")
-        self.volatilityEntry.grid(row=2, column=1)
     
     def getFilter(self):
-        self.filterValue = [] ##need to do check method on all values in boxes
+        if self.filtered == False:
+            self.filterValue = []
+            self.filtered = True
         
-        closeEntry = numericalCheck(self.closeEntry.entryLB.get(), self.closeEntry.entryUB.get(), 0, 1000000, "Close Price")
-        if closeEntry == "n":
-            self.master.mid.displayArr = self.master.displayArr
-            self.master.mid.closeFrame.sorted = False
-            self.master.mid.volatilityFrame.sorted = False
-            return self.master.displayArr
-        else:
-            self.filterValue.append(closeEntry)
 
-        volatilityEntry = numericalCheck(self.volatilityEntry.entryLB.get(), self.volatilityEntry.entryUB.get(), 0, 100, "Volatility")##do negative check
-        if volatilityEntry == "n":
-            self.master.mid.displayArr = self.master.displayArr
-            return self.master.displayArr
-        else:
-            self.filterValue.append(volatilityEntry)
 
-        self.filterArr = search(self.master.displayArr, self.filterValue)
-        self.master.mid.displayArr = self.filterArr
-        self.master.mid.closeFrame.sorted = False
-        self.master.mid.volatilityFrame.sorted = False
-        return self.filterArr
-        
+
+
+        self.closeEntry.get()
+
 class middleFrame(Frame):
     def __init__(self, master, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
@@ -318,11 +233,12 @@ class middleFrame(Frame):
         self.header_preview = Label(self, text = "Last 90 Days")
         self.header_preview.grid(row=0,column=1)
 
-        self.closeFrame = screenerHeader(self, "Close Price", 2) #,2
+        self.closeFrame = screenerHeader(self, "Close Price", 2)
         self.closeFrame.grid(row=0, column=2)
 
-        self.volatilityFrame = screenerHeader(self, "Volatility", 3) #,3
+        self.volatilityFrame = screenerHeader(self, "Volatility", 3)
         self.volatilityFrame.grid(row=0, column=3)
+
 
     def displayScreener(self, arr):
         self.clearScreener()
@@ -336,7 +252,7 @@ class middleFrame(Frame):
             buttonWindow(self, arr[i][0]).grid(row = currentRow, column = 0)
             Label(self, image = arr[i][1]).grid(row = currentRow, column = 1)
             Label(self, text = "{:.2f}".format(float(arr[i][2]))).grid(row = currentRow, column = 2)
-            Label(self, text = "{:.2f}%".format(float(arr[i][3]))).grid(row = currentRow, column = 3)
+            Label(self, text = "{:.2f}%".format(float(arr[i][3])*100)).grid(row = currentRow, column = 3)
 
             currentRow += 1
     
@@ -352,21 +268,8 @@ class bottomFrame(Frame):
         self.exitBtn = Button(self, text = "Exit", command = root.destroy)
         self.exitBtn.pack(side="right")
 
-class filterEntry(Frame):
-    def __init__(self, master, name, *args, **kwargs):
-        Frame.__init__(self, master, *args, **kwargs)
-        self.label = Label(self, text=name)
-        self.entryLB = Entry(self, width=5)
-        self.sep = Label(self, text = "-")
-        self.entryUB = Entry(self, width=5)
-
-        self.label.grid(row=0, column=0)
-        self.entryLB.grid(row=0, column=1)
-        self.sep.grid(row=0, column=2)
-        self.entryUB.grid(row=0, column=3)
-
 class screenerHeader(Frame):
-    def __init__(self, master, name, column, *args, **kwargs):# column,
+    def __init__(self, master, name, column, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
         self.master = master
 
@@ -459,6 +362,8 @@ displayArr = initialise(tickerArr)
 home = mainWindow(root, width=1000, bg="#000000")
 home.pack()
 home.passArr(displayArr)
+
+print()
 
 root.mainloop()
 ###################################################################################

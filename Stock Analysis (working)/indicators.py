@@ -230,4 +230,6 @@ def MACD(arr, a = 12, b = 26, c = 9):#no point in asking dateAdd, this is strict
   return [fastArr, slowArr, diffArr, sigArr, histArr]
 
 
+
 #MUST INCLUDE CASE WHEN U HAVE ARRAY WITH DATES IN ITSELF# USE TRANSPOSE() from main.py
+
