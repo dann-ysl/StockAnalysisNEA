@@ -215,15 +215,23 @@ def linearSearchRange(arr, lb, ub):
 
     return output
 
+def isReal(value):
+    try:
+        float(value)
+    except:
+        return False
+    
+    return True
+
 def numericalCheck(entryLB, entryUB, lb, ub, name):
  
-    if (entryLB.lstrip("-").isdigit() == False) and (entryLB == ""):
+    if (isReal(entryLB) == False) and (entryLB == ""):
         entryLB = str(lb)
 
-    if (entryUB.lstrip("-").isdigit() == False) and (entryUB == ""):
+    if (isReal(entryUB) == False) and (entryUB == ""):
         entryUB = str(ub)
 
-    if (entryLB.lstrip("-").isdigit() == True) and (entryUB.lstrip("-").isdigit() == True):
+    if (isReal(entryLB) == True) and (isReal(entryUB) == True):
         if float(entryLB) > float(entryUB):
             messagebox.showerror("Error","Lower bound for {} is higher than the upper bound".format(name))
             return "n"
