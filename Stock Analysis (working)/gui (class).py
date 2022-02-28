@@ -65,6 +65,7 @@ def setCurrentRecord(arr, location):
         writer.writerow(header)
         writer.writerows(data)
 
+# savePlot() reads the file at "location" and
 def savePlot(location):
     output = []
 
@@ -85,21 +86,22 @@ def savePlot(location):
 
     return output
 
-def initialise(arr):#sort record in here
+# initalise() gets the record stored in "currentRecord.csv" and returns it
+def initialise(arr):
     currentDate = "recordCache/currentDate.csv"
     currentRecord = "recordCache/currentRecord.csv"
 
-    if os.path.exists(currentDate):
-        with open(currentDate, "r") as readfile:
+    if os.path.exists(currentDate): # Checks if "currentRecord.csv" exists
+        with open(currentDate, "r") as readfile: # Extracts date last stored in "currentDate.csv"
             reader = csv.reader(readfile)
-            for row in reader:
+            for row in reader: # Should only iterate once, as there is only 1 line/row in "currentDate.csv"
                 lastDate = row
 
-        if lastDate[0] != str(dt.date.today()):
+        if lastDate[0] != str(dt.date.today()): # Checks if the date stored is today, otherwise it will write today's date, overwriting "currentDate.csv", and update the currentRecord
             setCurrentDate(currentDate)
             setCurrentRecord(arr, currentRecord)
         
-    else:#will never be executed once the file has been created
+    else:# This else statement will never be executed once the file has been created. Only checks to see if file does not exist/or is deleted
         setCurrentDate(currentDate)
         setCurrentRecord(arr, currentRecord)
 
